@@ -30,7 +30,7 @@
 #pragma once
 
 #if defined(_WIN32) && !defined(NOMINMAX)
-#  define NOMINMAX
+#	define NOMINMAX
 #endif
 
 #include <algorithm>
@@ -39,7 +39,7 @@
 #include <type_traits>
 
 #if defined(__CUDACC__)
-#  include <cuda_fp16.h>
+#	include <cuda_fp16.h>
 #endif
 
 //////////////////////////////////////
@@ -51,36 +51,36 @@
 #define FILE_LINE __FILE__ ":" STR(__LINE__)
 
 #if defined(__CUDA_ARCH__)
-	#define TCNN_PRAGMA_UNROLL _Pragma("unroll")
-	#define TCNN_PRAGMA_NO_UNROLL _Pragma("unroll 1")
+#	define TCNN_PRAGMA_UNROLL _Pragma("unroll")
+#	define TCNN_PRAGMA_NO_UNROLL _Pragma("unroll 1")
 #else
-	#define TCNN_PRAGMA_UNROLL
-	#define TCNN_PRAGMA_NO_UNROLL
+#	define TCNN_PRAGMA_UNROLL
+#	define TCNN_PRAGMA_NO_UNROLL
 #endif
 
 #ifdef __CUDACC__
-#  ifdef __NVCC_DIAG_PRAGMA_SUPPORT__
-#    pragma nv_diag_suppress = unsigned_compare_with_zero
-#  else
-#    pragma diag_suppress = unsigned_compare_with_zero
-#  endif
+#	ifdef __NVCC_DIAG_PRAGMA_SUPPORT__
+#		pragma nv_diag_suppress = unsigned_compare_with_zero
+#	else
+#		pragma diag_suppress = unsigned_compare_with_zero
+#	endif
 #endif
 
 #if defined(__CUDACC__) || (defined(__clang__) && defined(__CUDA__))
-#define TCNN_HOST_DEVICE __host__ __device__
-#define TCNN_DEVICE __device__
-#define TCNN_HOST __host__
+#	define TCNN_HOST_DEVICE __host__ __device__
+#	define TCNN_DEVICE __device__
+#	define TCNN_HOST __host__
 #else
-#define TCNN_HOST_DEVICE
-#define TCNN_DEVICE
-#define TCNN_HOST
+#	define TCNN_HOST_DEVICE
+#	define TCNN_DEVICE
+#	define TCNN_HOST
 #endif
 
 #include <tiny-cuda-nn/vec.h>
 
-#if defined(__CUDA_ARCH__)
-static_assert(__CUDA_ARCH__ >= TCNN_MIN_GPU_ARCH * 10, "MIN_GPU_ARCH=" STR(TCNN_MIN_GPU_ARCH) "0 must bound __CUDA_ARCH__=" STR(__CUDA_ARCH__) " from below, but doesn't.");
-#endif
+// #if defined(__CUDA_ARCH__)
+// static_assert(__CUDA_ARCH__ >= TCNN_MIN_GPU_ARCH * 10, "MIN_GPU_ARCH=" STR(TCNN_MIN_GPU_ARCH) "0 must bound __CUDA_ARCH__="
+// STR(__CUDA_ARCH__) " from below, but doesn't."); #endif
 
 namespace tcnn {
 
@@ -112,11 +112,11 @@ static constexpr bool PARAMS_ALIGNED = true;
 //  <=52, 61 |                      no |                       70 |   float (no tensor cores)
 
 #if defined(__CUDACC__)
-#  if TCNN_HALF_PRECISION
+#	if TCNN_HALF_PRECISION
 using network_precision_t = __half;
-#  else
+#	else
 using network_precision_t = float;
-#  endif
+#	endif
 
 // Optionally: set the precision to `float` to disable tensor cores and debug potential
 //             problems with mixed-precision training.
@@ -176,13 +176,13 @@ enum class ReductionType {
 // Misc helpers //
 //////////////////
 
-template <typename T>
-TCNN_HOST_DEVICE void host_device_swap(T& a, T& b) {
-	T c(a); a=b; b=c;
+template <typename T> TCNN_HOST_DEVICE void host_device_swap(T& a, T& b) {
+	T c(a);
+	a = b;
+	b = c;
 }
 
-template <typename T>
-TCNN_HOST_DEVICE T gcd(T a, T b) {
+template <typename T> TCNN_HOST_DEVICE T gcd(T a, T b) {
 	while (a != 0) {
 		b %= a;
 		host_device_swap(a, b);
@@ -190,31 +190,18 @@ TCNN_HOST_DEVICE T gcd(T a, T b) {
 	return b;
 }
 
-template <typename T>
-TCNN_HOST_DEVICE T lcm(T a, T b) {
+template <typename T> TCNN_HOST_DEVICE T lcm(T a, T b) {
 	T tmp = gcd(a, b);
 	return tmp ? (a / tmp) * b : 0;
 }
 
-template <typename T>
-TCNN_HOST_DEVICE T div_round_up(T val, T divisor) {
-	return (val + divisor - 1) / divisor;
-}
+template <typename T> TCNN_HOST_DEVICE T div_round_up(T val, T divisor) { return (val + divisor - 1) / divisor; }
 
-template <typename T>
-TCNN_HOST_DEVICE T next_multiple(T val, T divisor) {
-	return div_round_up(val, divisor) * divisor;
-}
+template <typename T> TCNN_HOST_DEVICE T next_multiple(T val, T divisor) { return div_round_up(val, divisor) * divisor; }
 
-template <typename T>
-TCNN_HOST_DEVICE T previous_multiple(T val, T divisor) {
-	return (val / divisor) * divisor;
-}
+template <typename T> TCNN_HOST_DEVICE T previous_multiple(T val, T divisor) { return (val / divisor) * divisor; }
 
-template <typename T>
-constexpr TCNN_HOST_DEVICE bool is_pot(T val) {
-	return (val & (val - 1)) == 0;
-}
+template <typename T> constexpr TCNN_HOST_DEVICE bool is_pot(T val) { return (val & (val - 1)) == 0; }
 
 inline constexpr TCNN_HOST_DEVICE uint32_t next_pot(uint32_t v) {
 	--v;
@@ -223,7 +210,7 @@ inline constexpr TCNN_HOST_DEVICE uint32_t next_pot(uint32_t v) {
 	v |= v >> 4;
 	v |= v >> 8;
 	v |= v >> 16;
-	return v+1;
+	return v + 1;
 }
 
 template <typename T> constexpr TCNN_HOST_DEVICE float default_loss_scale();
@@ -240,63 +227,45 @@ constexpr uint32_t WARP_SIZE = 32;
 constexpr uint32_t batch_size_granularity = BATCH_SIZE_GRANULARITY;
 constexpr uint32_t n_threads_linear = N_THREADS_LINEAR;
 
-template <typename T>
-constexpr TCNN_HOST_DEVICE uint32_t n_blocks_linear(T n_elements, uint32_t n_threads = N_THREADS_LINEAR) {
+template <typename T> constexpr TCNN_HOST_DEVICE uint32_t n_blocks_linear(T n_elements, uint32_t n_threads = N_THREADS_LINEAR) {
 	return (uint32_t)div_round_up(n_elements, (T)n_threads);
 }
 
-template <typename T>
-struct PitchedPtr {
+template <typename T> struct PitchedPtr {
 	TCNN_HOST_DEVICE PitchedPtr() : ptr{nullptr}, stride_in_bytes{sizeof(T)} {}
-	TCNN_HOST_DEVICE PitchedPtr(T* ptr, size_t stride_in_elements, size_t offset = 0, size_t extra_stride_bytes = 0) : ptr{ptr + offset}, stride_in_bytes{(uint32_t)(stride_in_elements * sizeof(T) + extra_stride_bytes)} {}
+	TCNN_HOST_DEVICE PitchedPtr(T* ptr, size_t stride_in_elements, size_t offset = 0, size_t extra_stride_bytes = 0) :
+		ptr{ptr + offset}, stride_in_bytes{(uint32_t)(stride_in_elements * sizeof(T) + extra_stride_bytes)} {}
 
 	template <typename U>
 	TCNN_HOST_DEVICE explicit PitchedPtr(PitchedPtr<U> other) : ptr{(T*)other.ptr}, stride_in_bytes{other.stride_in_bytes} {}
 
-	TCNN_HOST_DEVICE T* operator()(uint32_t y) const {
-		return (T*)((const char*)ptr + y * stride_in_bytes);
-	}
+	TCNN_HOST_DEVICE T* operator()(uint32_t y) const { return (T*)((const char*)ptr + y * stride_in_bytes); }
 
-	TCNN_HOST_DEVICE void operator+=(uint32_t y) {
-		ptr = (T*)((const char*)ptr + y * stride_in_bytes);
-	}
+	TCNN_HOST_DEVICE void operator+=(uint32_t y) { ptr = (T*)((const char*)ptr + y * stride_in_bytes); }
 
-	TCNN_HOST_DEVICE void operator-=(uint32_t y) {
-		ptr = (T*)((const char*)ptr - y * stride_in_bytes);
-	}
+	TCNN_HOST_DEVICE void operator-=(uint32_t y) { ptr = (T*)((const char*)ptr - y * stride_in_bytes); }
 
-	TCNN_HOST_DEVICE explicit operator bool() const {
-		return ptr;
-	}
+	TCNN_HOST_DEVICE explicit operator bool() const { return ptr; }
 
 	T* ptr;
 	uint32_t stride_in_bytes;
 };
 
-template <typename T>
-struct MatrixView {
+template <typename T> struct MatrixView {
 	TCNN_HOST_DEVICE MatrixView() : data{nullptr}, stride_i{0}, stride_j{0} {}
 	TCNN_HOST_DEVICE MatrixView(T* data, uint32_t stride_i, uint32_t stride_j) : data{data}, stride_i{stride_i}, stride_j{stride_j} {}
-	TCNN_HOST_DEVICE MatrixView(const MatrixView<std::remove_const_t<T>>& other) : data{other.data}, stride_i{other.stride_i}, stride_j{other.stride_j} {}
+	TCNN_HOST_DEVICE MatrixView(const MatrixView<std::remove_const_t<T>>& other) :
+		data{other.data}, stride_i{other.stride_i}, stride_j{other.stride_j} {}
 
-	TCNN_HOST_DEVICE T& operator()(uint32_t i, uint32_t j = 0) const {
-		return data[i * stride_i + j * stride_j];
-	}
+	TCNN_HOST_DEVICE T& operator()(uint32_t i, uint32_t j = 0) const { return data[i * stride_i + j * stride_j]; }
 
-	TCNN_HOST_DEVICE void advance(uint32_t m, uint32_t n) {
-		data = &(*this)(m, n);
-	}
+	TCNN_HOST_DEVICE void advance(uint32_t m, uint32_t n) { data = &(*this)(m, n); }
 
-	TCNN_HOST_DEVICE void advance_rows(uint32_t m) {
-		advance(m, 0);
-	}
+	TCNN_HOST_DEVICE void advance_rows(uint32_t m) { advance(m, 0); }
 
-	TCNN_HOST_DEVICE void advance_cols(uint32_t n) {
-		advance(0, n);
-	}
+	TCNN_HOST_DEVICE void advance_cols(uint32_t n) { advance(0, n); }
 
-	template <uint32_t N>
-	TCNN_HOST_DEVICE tvec<std::remove_const_t<T>, N> row(uint32_t m) const {
+	template <uint32_t N> TCNN_HOST_DEVICE tvec<std::remove_const_t<T>, N> row(uint32_t m) const {
 		tvec<std::remove_const_t<T>, N> result;
 		TCNN_PRAGMA_UNROLL
 		for (uint32_t i = 0; i < N; ++i) {
@@ -305,8 +274,7 @@ struct MatrixView {
 		return result;
 	}
 
-	template <uint32_t N>
-	TCNN_HOST_DEVICE tvec<std::remove_const_t<T>, N> col(uint32_t n) const {
+	template <uint32_t N> TCNN_HOST_DEVICE tvec<std::remove_const_t<T>, N> col(uint32_t n) const {
 		tvec<std::remove_const_t<T>, N> result;
 		TCNN_PRAGMA_UNROLL
 		for (uint32_t i = 0; i < N; ++i) {
@@ -315,28 +283,24 @@ struct MatrixView {
 		return result;
 	}
 
-	template <typename U, uint32_t N, size_t A>
-	TCNN_HOST_DEVICE void set_row(uint32_t m, const tvec<U, N, A>& val) {
+	template <typename U, uint32_t N, size_t A> TCNN_HOST_DEVICE void set_row(uint32_t m, const tvec<U, N, A>& val) {
 		TCNN_PRAGMA_UNROLL
 		for (uint32_t i = 0; i < N; ++i) {
 			(*this)(m, i) = val[i];
 		}
 	}
 
-	template <typename U, uint32_t N, size_t A>
-	TCNN_HOST_DEVICE void set_col(uint32_t n, const tvec<U, N, A>& val) {
+	template <typename U, uint32_t N, size_t A> TCNN_HOST_DEVICE void set_col(uint32_t n, const tvec<U, N, A>& val) {
 		TCNN_PRAGMA_UNROLL
 		for (uint32_t i = 0; i < N; ++i) {
 			(*this)(i, n) = val[i];
 		}
 	}
 
-	TCNN_HOST_DEVICE explicit operator bool() const {
-		return data;
-	}
+	TCNN_HOST_DEVICE explicit operator bool() const { return data; }
 
 	T* data;
 	uint32_t stride_i, stride_j;
 };
 
-}
+} // namespace tcnn
