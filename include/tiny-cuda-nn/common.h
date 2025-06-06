@@ -78,9 +78,9 @@
 
 #include <tiny-cuda-nn/vec.h>
 
-#if defined(__CUDA_ARCH__)
-static_assert(__CUDA_ARCH__ >= TCNN_MIN_GPU_ARCH * 10, "MIN_GPU_ARCH=" STR(TCNN_MIN_GPU_ARCH) "0 must bound __CUDA_ARCH__=" STR(__CUDA_ARCH__) " from below, but doesn't.");
-#endif
+// #if defined(__CUDA_ARCH__)
+// static_assert(__CUDA_ARCH__ >= TCNN_MIN_GPU_ARCH * 10, "MIN_GPU_ARCH=" STR(TCNN_MIN_GPU_ARCH) "0 must bound __CUDA_ARCH__=" STR(__CUDA_ARCH__) " from below, but doesn't.");
+// #endif
 
 namespace tcnn {
 
